@@ -1,12 +1,30 @@
 use rand::{distributions::Uniform, Rng};
 use std::error::Error;
+use std::str::FromStr;
 use std::time::Instant;
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum Algorithm {
+    BubbleSort,
+    InsertionSort,
+}
+
+impl FromStr for Algorithm {
+    type Err = ();
+
+    fn from_str(input: &str) -> Result<Algorithm, Self::Err> {
+        match input {
+            "bubble_sort" => Ok(Algorithm::BubbleSort),
+            _ => Err(()),
+        }
+    }
+}
 
 pub struct Config {
     numbers_to_sort: u32,
     upper_limit: i32,
     lower_limit: i32,
-    algorithms: Vec<String>,
+    algorithms: Vec<Algorithm>,
 }
 
 impl Config {
@@ -16,11 +34,19 @@ impl Config {
         lower_limit: i32,
         algorithms: Vec<String>,
     ) -> Result<Config, &'static str> {
+        let mut valid_algorithms: Vec<Algorithm> = Vec::new();
+
+        for algorithm in algorithms {
+            if let Ok(algorithm) = Algorithm::from_str(&algorithm) {
+                valid_algorithms.push(algorithm);
+            }
+        }
+
         Ok(Config {
             numbers_to_sort,
             upper_limit,
             lower_limit,
-            algorithms,
+            algorithms: valid_algorithms,
         })
     }
 }
@@ -35,7 +61,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     println!("Sorting {} numbers", config.numbers_to_sort);
     println!("{:?}", random_numbers);
     for algorithm in config.algorithms {
-        println!("Sorting with '{}'", algorithm);
+        println!("Sorting with '{:?}'", algorithm);
         let start = Instant::now();
         let elapsed_time = start.elapsed();
         println!("It took {:.3?} seconds", elapsed_time);
