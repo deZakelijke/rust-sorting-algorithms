@@ -1,0 +1,9 @@
+[package]
+name = "rust-sorting-algorithms"
+version = "0.1.0"
+edition = "2021"
+authors = ["Micha <git@michadegroot.nl>"]
+rust-version = "1.56"
+
+[dependencies]
+rand ="0.8.3"
