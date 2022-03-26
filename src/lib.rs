@@ -3,22 +3,8 @@ use std::error::Error;
 use std::str::FromStr;
 use std::time::Instant;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Algorithm {
-    BubbleSort,
-    InsertionSort,
-}
-
-impl FromStr for Algorithm {
-    type Err = ();
-
-    fn from_str(input: &str) -> Result<Algorithm, Self::Err> {
-        match input {
-            "bubble_sort" => Ok(Algorithm::BubbleSort),
-            _ => Err(()),
-        }
-    }
-}
+mod sorting;
+pub use crate::sorting::{check_if_sorted, Algorithm};
 
 pub struct Config {
     numbers_to_sort: u32,
@@ -63,37 +49,17 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     for algorithm in config.algorithms {
         println!("Sorting with '{:?}'", algorithm);
         let start = Instant::now();
+        let sorted_numbers = algorithm
+            .run_sorting_algorithm(random_numbers.clone())
+            .unwrap();
+
         let elapsed_time = start.elapsed();
         println!("It took {:.3?} seconds", elapsed_time);
+        let sort_check = check_if_sorted(&sorted_numbers);
+        match sort_check {
+            Ok(()) => println!("Sorted correctly"),
+            Err(()) => println!("Not sorted correctly"),
+        };
     }
     Ok(())
-}
-
-fn check_if_sorted(sorted_vector: &Vec<i32>) -> Result<(), ()> {
-    let mut vec_iter = sorted_vector.iter().peekable();
-    while let Some(item) = vec_iter.next() {
-        if let Some(next) = vec_iter.peek() {
-            if next < &item {
-                return Err(());
-            }
-        }
-    }
-    Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn simple_is_sorted() {
-        let sorted_vector: Vec<i32> = (0..10).collect();
-        assert_eq!(Ok(()), check_if_sorted(&sorted_vector));
-    }
-
-    #[test]
-    fn simple_is_not_sorted() {
-        let unsorted_vector: Vec<i32> = (0..10).rev().collect();
-        assert_eq!(Err(()), check_if_sorted(&unsorted_vector));
-    }
 }
