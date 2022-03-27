@@ -4,6 +4,7 @@ use std::str::FromStr;
 pub enum Algorithm {
     BubbleSort(SortFn),
     InsertionSort(SortFn),
+    SelectionSort(SortFn),
 }
 
 impl FromStr for Algorithm {
@@ -13,6 +14,7 @@ impl FromStr for Algorithm {
         match input {
             "bubble_sort" => Ok(Algorithm::BubbleSort(bubble_sort)),
             "insertion_sort" => Ok(Algorithm::InsertionSort(insertion_sort)),
+            "selection_sort" => Ok(Algorithm::SelectionSort(selection_sort)),
             _ => Err(()),
         }
     }
@@ -22,7 +24,9 @@ impl Algorithm {
         use Algorithm::*;
 
         match self {
-            &BubbleSort(sort_fn) | &InsertionSort(sort_fn) => Ok(sort_fn(unsorted_numbers)),
+            &BubbleSort(sort_fn) | &InsertionSort(sort_fn) | &SelectionSort(sort_fn) => {
+                Ok(sort_fn(unsorted_numbers))
+            }
         }
     }
 }
@@ -71,6 +75,22 @@ fn insertion_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
     unsorted_numbers
 }
 
+fn selection_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
+    let length = unsorted_numbers.len();
+    for i in 0..length {
+        let mut current_smallest = unsorted_numbers[i];
+        let mut current_smallest_index = i;
+        for j in i..length {
+            if unsorted_numbers[j] < current_smallest {
+                current_smallest = unsorted_numbers[j];
+                current_smallest_index = j;
+            }
+        }
+        unsorted_numbers.swap(i, current_smallest_index);
+    }
+    unsorted_numbers
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -99,5 +119,12 @@ mod tests {
         let unsorted_numbers: Vec<i32> = vec![4, 2, 5, 3, 1];
         let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5];
         assert_eq!(sorted_numbers, insertion_sort(unsorted_numbers));
+    }
+
+    #[test]
+    fn selection_sort_five_items() {
+        let unsorted_numbers: Vec<i32> = vec![4, 2, 5, 3, 1];
+        let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5];
+        assert_eq!(sorted_numbers, selection_sort(unsorted_numbers));
     }
 }
