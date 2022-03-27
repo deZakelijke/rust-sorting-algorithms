@@ -12,6 +12,7 @@ impl FromStr for Algorithm {
     fn from_str(input: &str) -> Result<Algorithm, Self::Err> {
         match input {
             "bubble_sort" => Ok(Algorithm::BubbleSort(bubble_sort)),
+            "insertion_sort" => Ok(Algorithm::InsertionSort(insertion_sort)),
             _ => Err(()),
         }
     }
@@ -21,11 +22,7 @@ impl Algorithm {
         use Algorithm::*;
 
         match self {
-            &BubbleSort(sort_fn) => Ok(sort_fn(unsorted_numbers)),
-            _ => {
-                println!("Sorting algorithm not yet implemented");
-                Err(())
-            }
+            &BubbleSort(sort_fn) | &InsertionSort(sort_fn) => Ok(sort_fn(unsorted_numbers)),
         }
     }
 }
@@ -58,6 +55,22 @@ fn bubble_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
     unsorted_numbers
 }
 
+fn insertion_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
+    let length = unsorted_numbers.len();
+    for i in 0..length {
+        let current_number = unsorted_numbers[i];
+        for j in 0..i {
+            let current_smallest = unsorted_numbers[j];
+            if current_number <= current_smallest {
+                unsorted_numbers.remove(i);
+                unsorted_numbers.insert(j, current_number);
+                break;
+            }
+        }
+    }
+    unsorted_numbers
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -72,5 +85,19 @@ mod tests {
     fn simple_is_not_sorted() {
         let unsorted_numbers: Vec<i32> = (0..10).rev().collect();
         assert_eq!(Err(()), check_if_sorted(&unsorted_numbers));
+    }
+
+    #[test]
+    fn bubble_sort_five_items() {
+        let unsorted_numbers: Vec<i32> = vec![4, 2, 5, 3, 1];
+        let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5];
+        assert_eq!(sorted_numbers, bubble_sort(unsorted_numbers));
+    }
+
+    #[test]
+    fn insertion_sort_five_items() {
+        let unsorted_numbers: Vec<i32> = vec![4, 2, 5, 3, 1];
+        let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5];
+        assert_eq!(sorted_numbers, insertion_sort(unsorted_numbers));
     }
 }
