@@ -3,8 +3,10 @@ use std::error::Error;
 use std::str::FromStr;
 use std::time::Instant;
 
+mod algorithm;
 mod sorting;
-pub use crate::sorting::{check_if_sorted, Algorithm};
+pub use crate::algorithm::Algorithm;
+pub use crate::sorting::check_if_sorted;
 
 pub struct Config {
     numbers_to_sort: u32,

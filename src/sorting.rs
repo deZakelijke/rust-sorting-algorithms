@@ -1,38 +1,3 @@
-use std::str::FromStr;
-
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Algorithm {
-    BubbleSort(SortFn),
-    InsertionSort(SortFn),
-    SelectionSort(SortFn),
-}
-
-impl FromStr for Algorithm {
-    type Err = ();
-
-    fn from_str(input: &str) -> Result<Algorithm, Self::Err> {
-        match input {
-            "bubble_sort" => Ok(Algorithm::BubbleSort(bubble_sort)),
-            "insertion_sort" => Ok(Algorithm::InsertionSort(insertion_sort)),
-            "selection_sort" => Ok(Algorithm::SelectionSort(selection_sort)),
-            _ => Err(()),
-        }
-    }
-}
-impl Algorithm {
-    pub fn run_sorting_algorithm(&self, unsorted_numbers: Vec<i32>) -> Result<Vec<i32>, ()> {
-        use Algorithm::*;
-
-        match self {
-            &BubbleSort(sort_fn) | &InsertionSort(sort_fn) | &SelectionSort(sort_fn) => {
-                Ok(sort_fn(unsorted_numbers))
-            }
-        }
-    }
-}
-
-type SortFn = fn(Vec<i32>) -> Vec<i32>;
-
 pub fn check_if_sorted(sorted_vector: &Vec<i32>) -> Result<(), ()> {
     let mut vec_iter = sorted_vector.iter().peekable();
     while let Some(item) = vec_iter.next() {
@@ -45,7 +10,7 @@ pub fn check_if_sorted(sorted_vector: &Vec<i32>) -> Result<(), ()> {
     Ok(())
 }
 
-fn bubble_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
+pub fn bubble_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
     let length = unsorted_numbers.len();
     for i in 0..length {
         for j in 1..length - i {
@@ -59,7 +24,7 @@ fn bubble_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
     unsorted_numbers
 }
 
-fn insertion_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
+pub fn insertion_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
     let length = unsorted_numbers.len();
     for i in 0..length {
         let current_number = unsorted_numbers[i];
@@ -75,7 +40,7 @@ fn insertion_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
     unsorted_numbers
 }
 
-fn selection_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
+pub fn selection_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
     let length = unsorted_numbers.len();
     for i in 0..length {
         let mut current_smallest = unsorted_numbers[i];
@@ -89,6 +54,41 @@ fn selection_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
         unsorted_numbers.swap(i, current_smallest_index);
     }
     unsorted_numbers
+}
+
+pub fn merge_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
+    if unsorted_numbers.len() == 1 {
+        return unsorted_numbers;
+    }
+    let half_unsorted = unsorted_numbers.split_off(unsorted_numbers.len() / 2);
+    let first_half_sorted = merge_sort(unsorted_numbers);
+    let second_half_sorted = merge_sort(half_unsorted);
+    let mut first_half_sorted_iterable = first_half_sorted.iter().peekable();
+    let mut second_half_sorted_iterable = second_half_sorted.iter().peekable();
+
+    let mut sorted_numbers: Vec<i32> = Vec::new();
+    while let (Some(first_head), Some(second_head)) = (
+        first_half_sorted_iterable.peek(),
+        second_half_sorted_iterable.peek(),
+    ) {
+        if first_head > second_head {
+            let second_head = second_half_sorted_iterable.next().unwrap();
+            sorted_numbers.push(*second_head);
+        } else {
+            let first_head = first_half_sorted_iterable.next().unwrap();
+            sorted_numbers.push(*first_head);
+        }
+    }
+    if let Some(_) = first_half_sorted_iterable.peek() {
+        while let Some(first_head) = first_half_sorted_iterable.next() {
+            sorted_numbers.push(*first_head);
+        }
+    } else {
+        while let Some(second_head) = second_half_sorted_iterable.next() {
+            sorted_numbers.push(*second_head);
+        }
+    }
+    sorted_numbers
 }
 
 #[cfg(test)]
@@ -108,23 +108,30 @@ mod tests {
     }
 
     #[test]
-    fn bubble_sort_five_items() {
-        let unsorted_numbers: Vec<i32> = vec![4, 2, 5, 3, 1];
-        let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5];
+    fn bubble_sort_ten_items() {
+        let unsorted_numbers: Vec<i32> = vec![8, 9, 1, 7, 2, 5, 3, 10, 4, 6];
+        let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         assert_eq!(sorted_numbers, bubble_sort(unsorted_numbers));
     }
 
     #[test]
-    fn insertion_sort_five_items() {
-        let unsorted_numbers: Vec<i32> = vec![4, 2, 5, 3, 1];
-        let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5];
+    fn insertion_sort_ten_items() {
+        let unsorted_numbers: Vec<i32> = vec![8, 9, 1, 7, 2, 5, 3, 10, 4, 6];
+        let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         assert_eq!(sorted_numbers, insertion_sort(unsorted_numbers));
     }
 
     #[test]
-    fn selection_sort_five_items() {
-        let unsorted_numbers: Vec<i32> = vec![4, 2, 5, 3, 1];
-        let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5];
+    fn selection_sort_ten_items() {
+        let unsorted_numbers: Vec<i32> = vec![8, 9, 1, 7, 2, 5, 3, 10, 4, 6];
+        let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         assert_eq!(sorted_numbers, selection_sort(unsorted_numbers));
+    }
+
+    #[test]
+    fn merge_sort_ten_items() {
+        let unsorted_numbers: Vec<i32> = vec![8, 9, 1, 7, 2, 5, 3, 10, 4, 6];
+        let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        assert_eq!(sorted_numbers, merge_sort(unsorted_numbers));
     }
 }
