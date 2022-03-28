@@ -1,3 +1,4 @@
+use clap::Parser;
 use rand::{distributions::Uniform, Rng};
 use std::error::Error;
 use std::str::FromStr;
@@ -8,32 +9,46 @@ mod sorting;
 pub use crate::algorithm::Algorithm;
 pub use crate::sorting::check_if_sorted;
 
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+pub struct Args {
+    // Amount of numbers to sort
+    #[clap(short, long, default_value_t = 10000)]
+    numbers: u32,
+
+    // Maximum value in unsorted numbers
+    #[clap(long, default_value_t = 100000)]
+    max: i32,
+
+    // Minimum value in unsorted numbers
+    #[clap(long, default_value_t = 0)]
+    min: i32,
+
+    // Sorting algorithms to use
+    #[clap(short, long)]
+    algorithms: Vec<String>,
+}
 pub struct Config {
-    numbers_to_sort: u32,
-    upper_limit: i32,
-    lower_limit: i32,
+    numbers: u32,
+    max: i32,
+    min: i32,
     algorithms: Vec<Algorithm>,
 }
 
 impl Config {
-    pub fn new(
-        numbers_to_sort: u32,
-        upper_limit: i32,
-        lower_limit: i32,
-        algorithms: Vec<String>,
-    ) -> Result<Config, &'static str> {
+    pub fn new(args: &Args) -> Result<Config, &'static str> {
         let mut valid_algorithms: Vec<Algorithm> = Vec::new();
 
-        for algorithm in algorithms {
+        for algorithm in args.algorithms.iter() {
             if let Ok(algorithm) = Algorithm::from_str(&algorithm) {
                 valid_algorithms.push(algorithm);
             }
         }
 
         Ok(Config {
-            numbers_to_sort,
-            upper_limit,
-            lower_limit,
+            numbers: args.numbers,
+            max: args.max,
+            min: args.min,
             algorithms: valid_algorithms,
         })
     }
@@ -41,13 +56,10 @@ impl Config {
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let mut rng = rand::thread_rng();
-    let range = Uniform::new(config.lower_limit, config.upper_limit);
-    let random_numbers: Vec<i32> = (0..config.numbers_to_sort)
-        .map(|_| rng.sample(&range))
-        .collect();
+    let range = Uniform::new(config.min, config.max);
+    let random_numbers: Vec<i32> = (0..config.numbers).map(|_| rng.sample(&range)).collect();
 
-    println!("Sorting {} numbers", config.numbers_to_sort);
-    println!("{:?}", random_numbers);
+    println!("Sorting {} numbers", config.numbers);
     for algorithm in config.algorithms {
         println!("Sorting with '{:?}'", algorithm);
         let start = Instant::now();
