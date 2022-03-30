@@ -11,7 +11,7 @@ pub enum Algorithm {
 }
 
 impl FromStr for Algorithm {
-    type Err = ();
+    type Err = &'static str;
 
     fn from_str(input: &str) -> Result<Algorithm, Self::Err> {
         match input {
@@ -20,7 +20,7 @@ impl FromStr for Algorithm {
             "selection_sort" => Ok(Algorithm::SelectionSort(selection_sort)),
             "merge_sort" => Ok(Algorithm::MergeSort(merge_sort)),
             "quick_sort" => Ok(Algorithm::QuickSort(quick_sort)),
-            _ => Err(()),
+            _ => Err("Not a valid sorting algorithm"),
         }
     }
 }

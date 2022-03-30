@@ -43,7 +43,7 @@ impl Config {
             let algorithm = Algorithm::from_str(&algorithm);
             match algorithm {
                 Ok(algorithm) => valid_algorithms.push(algorithm),
-                Err(error) => error,
+                Err(error) => return Err(error),
             }
         }
 
