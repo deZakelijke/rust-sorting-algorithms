@@ -111,6 +111,32 @@ pub fn quick_sort(unsorted_numbers: Vec<i32>) -> Vec<i32> {
     low_half.append(&mut high_half);
     low_half
 }
+pub fn radix_msb_sort(unsorted_numbers: Vec<i32>) -> Vec<i32> {
+    radix_msb_sort_recursive(unsorted_numbers, 32)
+}
+
+fn radix_msb_sort_recursive(unsorted_numbers: Vec<i32>, bit: u8) -> Vec<i32> {
+    if unsorted_numbers.len() <= 1 {
+        return unsorted_numbers;
+    }
+    if bit == 0 {
+        return unsorted_numbers;
+    }
+
+    let mut zero_half: Vec<i32> = Vec::new();
+    let mut one_half: Vec<i32> = Vec::new();
+    for number in unsorted_numbers {
+        if number & (1 << bit - 1) == 0 {
+            one_half.push(number);
+        } else {
+            zero_half.push(number);
+        }
+    }
+    one_half = radix_msb_sort_recursive(one_half, bit - 1);
+    zero_half = radix_msb_sort_recursive(zero_half, bit - 1);
+    one_half.append(&mut zero_half);
+    one_half
+}
 
 #[cfg(test)]
 mod tests {
@@ -161,5 +187,12 @@ mod tests {
         let unsorted_numbers: Vec<i32> = vec![8, 9, 1, 7, 2, 5, 3, 10, 4, 6];
         let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         assert_eq!(sorted_numbers, quick_sort(unsorted_numbers));
+    }
+
+    #[test]
+    fn radix_msb_sort_ten_items() {
+        let unsorted_numbers: Vec<i32> = vec![8, 9, 1, 7, 2, 5, 3, 10, 4, 6];
+        let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        assert_eq!(sorted_numbers, radix_msb_sort(unsorted_numbers));
     }
 }

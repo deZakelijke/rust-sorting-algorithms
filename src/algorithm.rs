@@ -8,6 +8,7 @@ pub enum Algorithm {
     SelectionSort(SortFn),
     MergeSort(SortFn),
     QuickSort(SortFn),
+    RadixMSBSort(SortFn),
 }
 
 impl FromStr for Algorithm {
@@ -20,6 +21,7 @@ impl FromStr for Algorithm {
             "selection_sort" => Ok(Algorithm::SelectionSort(selection_sort)),
             "merge_sort" => Ok(Algorithm::MergeSort(merge_sort)),
             "quick_sort" => Ok(Algorithm::QuickSort(quick_sort)),
+            "radix_msb_sort" => Ok(Algorithm::RadixMSBSort(radix_msb_sort)),
             _ => Err("Not a valid sorting algorithm"),
         }
     }
@@ -33,7 +35,8 @@ impl Algorithm {
             | &InsertionSort(sort_fn)
             | &SelectionSort(sort_fn)
             | &MergeSort(sort_fn)
-            | &QuickSort(sort_fn) => Ok(sort_fn(unsorted_numbers)),
+            | &QuickSort(sort_fn)
+            | &RadixMSBSort(sort_fn) => Ok(sort_fn(unsorted_numbers)),
         }
     }
 }
