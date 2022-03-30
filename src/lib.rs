@@ -40,8 +40,10 @@ impl Config {
         let mut valid_algorithms: Vec<Algorithm> = Vec::new();
 
         for algorithm in args.algorithms.iter() {
-            if let Ok(algorithm) = Algorithm::from_str(&algorithm) {
-                valid_algorithms.push(algorithm);
+            let algorithm = Algorithm::from_str(&algorithm);
+            match algorithm {
+                Ok(algorithm) => valid_algorithms.push(algorithm),
+                Err(error) => error,
             }
         }
 

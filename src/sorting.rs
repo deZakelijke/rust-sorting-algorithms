@@ -91,6 +91,27 @@ pub fn merge_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
     sorted_numbers
 }
 
+pub fn quick_sort(unsorted_numbers: Vec<i32>) -> Vec<i32> {
+    if unsorted_numbers.len() <= 1 {
+        return unsorted_numbers;
+    }
+    let pivot = unsorted_numbers[0];
+    let mut low_half: Vec<i32> = Vec::new();
+    let mut high_half: Vec<i32> = Vec::new();
+    for number in unsorted_numbers {
+        if number < pivot {
+            low_half.push(number);
+        } else if number > pivot {
+            high_half.push(number);
+        }
+    }
+    low_half = quick_sort(low_half);
+    high_half = quick_sort(high_half);
+    low_half.push(pivot);
+    low_half.append(&mut high_half);
+    low_half
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -133,5 +154,12 @@ mod tests {
         let unsorted_numbers: Vec<i32> = vec![8, 9, 1, 7, 2, 5, 3, 10, 4, 6];
         let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         assert_eq!(sorted_numbers, merge_sort(unsorted_numbers));
+    }
+
+    #[test]
+    fn quick_sort_ten_items() {
+        let unsorted_numbers: Vec<i32> = vec![8, 9, 1, 7, 2, 5, 3, 10, 4, 6];
+        let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        assert_eq!(sorted_numbers, quick_sort(unsorted_numbers));
     }
 }

@@ -7,6 +7,7 @@ pub enum Algorithm {
     InsertionSort(SortFn),
     SelectionSort(SortFn),
     MergeSort(SortFn),
+    QuickSort(SortFn),
 }
 
 impl FromStr for Algorithm {
@@ -18,6 +19,7 @@ impl FromStr for Algorithm {
             "insertion_sort" => Ok(Algorithm::InsertionSort(insertion_sort)),
             "selection_sort" => Ok(Algorithm::SelectionSort(selection_sort)),
             "merge_sort" => Ok(Algorithm::MergeSort(merge_sort)),
+            "quick_sort" => Ok(Algorithm::QuickSort(quick_sort)),
             _ => Err(()),
         }
     }
@@ -30,7 +32,8 @@ impl Algorithm {
             &BubbleSort(sort_fn)
             | &InsertionSort(sort_fn)
             | &SelectionSort(sort_fn)
-            | &MergeSort(sort_fn) => Ok(sort_fn(unsorted_numbers)),
+            | &MergeSort(sort_fn)
+            | &QuickSort(sort_fn) => Ok(sort_fn(unsorted_numbers)),
         }
     }
 }
