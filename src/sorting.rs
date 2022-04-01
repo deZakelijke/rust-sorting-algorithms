@@ -111,10 +111,12 @@ pub fn quick_sort(unsorted_numbers: Vec<i32>) -> Vec<i32> {
     low_half.append(&mut high_half);
     low_half
 }
+
+// TODO Heapsort
+
 pub fn radix_msb_sort(unsorted_numbers: Vec<i32>) -> Vec<i32> {
     radix_msb_sort_recursive(unsorted_numbers, 32)
 }
-
 fn radix_msb_sort_recursive(unsorted_numbers: Vec<i32>, bit: u8) -> Vec<i32> {
     if unsorted_numbers.len() <= 1 {
         return unsorted_numbers;
@@ -136,6 +138,42 @@ fn radix_msb_sort_recursive(unsorted_numbers: Vec<i32>, bit: u8) -> Vec<i32> {
     zero_half = radix_msb_sort_recursive(zero_half, bit - 1);
     one_half.append(&mut zero_half);
     one_half
+}
+
+pub fn heap_sort(mut unsorted_numbers: Vec<i32>) -> Vec<i32> {
+    heapify(&mut unsorted_numbers);
+    for end in (1..(unsorted_numbers.len())).rev() {
+        unsorted_numbers.swap(0, end);
+        sift_down(&mut unsorted_numbers, 0, end - 1);
+    }
+    unsorted_numbers
+}
+fn heapify(numbers: &mut Vec<i32>) {
+    for start in (0..((numbers.len() - 2) / 2 + 1)).rev() {
+        sift_down(numbers, start, numbers.len() - 1);
+    }
+}
+fn sift_down(numbers: &mut Vec<i32>, start_index: usize, end_index: usize) {
+    let mut root = start_index;
+
+    while root * 2 + 1 <= end_index {
+        let child = root * 2 + 1;
+        let mut swap = root;
+
+        if numbers[swap] < numbers[child] {
+            swap = child;
+        }
+        if child + 1 <= end_index && numbers[swap] < numbers[child + 1] {
+            swap = child + 1;
+        }
+
+        if swap == root {
+            return;
+        } else {
+            numbers.swap(root, swap);
+            root = swap;
+        }
+    }
 }
 
 #[cfg(test)]
@@ -194,5 +232,12 @@ mod tests {
         let unsorted_numbers: Vec<i32> = vec![8, 9, 1, 7, 2, 5, 3, 10, 4, 6];
         let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         assert_eq!(sorted_numbers, radix_msb_sort(unsorted_numbers));
+    }
+
+    #[test]
+    fn heap_sort_ten_items() {
+        let unsorted_numbers: Vec<i32> = vec![8, 9, 1, 7, 2, 5, 3, 10, 4, 6];
+        let sorted_numbers: Vec<i32> = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        assert_eq!(sorted_numbers, heap_sort(unsorted_numbers));
     }
 }
