@@ -1,6 +1,12 @@
 use clap::Parser;
-use rand::{distributions::Uniform, Rng};
+use core::fmt::Display;
+use core::ops::BitAnd;
+use num::Integer;
+use num::{PrimInt, Zero};
+use rand::distributions::{uniform::SampleUniform, Uniform};
+use rand::Rng;
 use std::error::Error;
+use std::ops::{Range, Rem};
 use std::str::FromStr;
 use std::time::Instant;
 
@@ -14,33 +20,43 @@ pub use crate::sorting::check_if_sorted;
 pub struct Args {
     // Amount of numbers to sort
     #[clap(short, long, default_value_t = 10000)]
-    numbers: u32,
+    numbers: i64,
 
     // Maximum value in unsorted numbers
     #[clap(long, default_value_t = 100000)]
-    max: i32,
+    max: i64,
 
     // Minimum value in unsorted numbers
     #[clap(long, default_value_t = 0)]
-    min: i32,
+    min: i64,
 
     // Sorting algorithms to use
     #[clap(short, long)]
     algorithms: Vec<String>,
 }
-pub struct Config {
-    numbers: u32,
-    max: i32,
-    min: i32,
-    algorithms: Vec<Algorithm>,
+pub struct Config<T> {
+    numbers: T,
+    max: T,
+    min: T,
+    algorithms: Vec<Algorithm<T>>,
 }
 
-impl Config {
-    pub fn new(args: &Args) -> Result<Config, &'static str> {
-        let mut valid_algorithms: Vec<Algorithm> = Vec::new();
-
-        for algorithm in args.algorithms.iter() {
-            let algorithm = Algorithm::from_str(&algorithm);
+impl<T> Config<T>
+where
+    T: PartialEq
+        + PartialOrd
+        + Copy
+        + PrimInt
+        + Zero
+        + BitAnd<i64, Output = T>
+        + Rem<Output = T>
+        + From<i64>,
+{
+    pub fn new(args: &Args) -> Result<Config<T>, &'static str> {
+        let mut valid_algorithms: Vec<Algorithm<T>> = Vec::new();
+        let algorithms = vec!["merge_sort", "heap_sort", "quick_sort", "radix_msd_sort"];
+        for algorithm in algorithms {
+            let algorithm = Algorithm::from_str(algorithm);
             match algorithm {
                 Ok(algorithm) => valid_algorithms.push(algorithm),
                 Err(error) => return Err(error),
@@ -48,22 +64,39 @@ impl Config {
         }
 
         Ok(Config {
-            numbers: args.numbers,
-            max: args.max,
-            min: args.min,
+            numbers: args.numbers.try_into().unwrap(),
+            max: args.max.try_into().unwrap(),
+            min: args.min.try_into().unwrap(),
             algorithms: valid_algorithms,
         })
     }
 }
 
-pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+pub fn run<T>(config: Config<T>) -> Result<(), Box<dyn Error>>
+where
+    T: PartialEq
+        + PartialOrd
+        + Copy
+        + Clone
+        + Display
+        + Integer
+        + PrimInt
+        + Zero
+        + Rem<Output = T>
+        + SampleUniform
+        + BitAnd<i64, Output = T>,
+    Range<T>: Iterator<Item = T>,
+    Vec<T>: FromIterator<T>,
+{
     let mut rng = rand::thread_rng();
     let range = Uniform::new(config.min, config.max);
-    let random_numbers: Vec<i32> = (0..config.numbers).map(|_| rng.sample(&range)).collect();
+    let random_numbers: Vec<T> = (T::zero()..config.numbers)
+        .map(|_| rng.sample(&range))
+        .collect();
 
     println!("Sorting {} numbers", config.numbers);
     for algorithm in config.algorithms {
-        println!("Sorting with '{:?}'", algorithm);
+        println!("Sorting with '{}'", algorithm);
         let start = Instant::now();
         let sorted_numbers = algorithm
             .run_sorting_algorithm(random_numbers.clone())

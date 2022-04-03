@@ -5,7 +5,7 @@ use std::process;
 fn main() {
     let args = Args::parse();
 
-    let config = Config::new(&args).unwrap_or_else(|err| {
+    let config = Config::<i64>::new(&args).unwrap_or_else(|err| {
         println!("Incorrect configuration: {}", err);
         process::exit(1);
     });
