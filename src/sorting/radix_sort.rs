@@ -1,16 +1,19 @@
-use core::ops::{BitAnd, Shl};
+use core::ops::BitAnd;
 use num::{PrimInt, Zero};
+use std::mem::size_of;
 
 pub fn radix_msd_sort<T>(unsorted_numbers: Vec<T>) -> Vec<T>
 where
-    T: PartialOrd + PartialEq + PrimInt + Zero + BitAnd<i64, Output = T>,
+    T: PartialOrd + PartialEq + PrimInt + Zero + BitAnd<Output = T> + From<u8>,
 {
-    radix_msd_sort_recursive(unsorted_numbers, 32)
+    let n = size_of::<T>();
+    println!("Size of T: {}", n);
+    radix_msd_sort_recursive(unsorted_numbers, n * 2)
 }
 
-fn radix_msd_sort_recursive<T>(unsorted_numbers: Vec<T>, bit: u8) -> Vec<T>
+fn radix_msd_sort_recursive<T>(unsorted_numbers: Vec<T>, bit: usize) -> Vec<T>
 where
-    T: PartialOrd + PartialEq + PrimInt + Zero + BitAnd<i64, Output = T>,
+    T: PartialOrd + PartialEq + PrimInt + Zero + BitAnd<Output = T> + From<u8>,
 {
     if unsorted_numbers.len() <= 1 {
         return unsorted_numbers;
@@ -22,7 +25,8 @@ where
     let mut zero_half: Vec<T> = Vec::new();
     let mut one_half: Vec<T> = Vec::new();
 
-    let mask: i64 = 1 << bit - 1;
+    let mask = 1 << (bit - 1);
+    let mask = mask.try_into().unwrap();
 
     for number in unsorted_numbers {
         if (number & mask).is_zero() {

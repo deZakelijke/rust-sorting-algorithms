@@ -50,6 +50,7 @@ where
         + Zero
         + BitAnd<i64, Output = T>
         + Rem<Output = T>
+        + From<u8>
         + From<i64>,
 {
     pub fn new(args: &Args) -> Result<Config<T>, &'static str> {
@@ -62,7 +63,6 @@ where
                 Err(error) => return Err(error),
             }
         }
-
         Ok(Config {
             numbers: args.numbers.try_into().unwrap(),
             max: args.max.try_into().unwrap(),

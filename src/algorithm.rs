@@ -12,7 +12,7 @@ pub struct Algorithm<T> {
 
 impl<T> FromStr for Algorithm<T>
 where
-    T: PartialEq + PartialOrd + Copy + PrimInt + Zero + BitAnd<i64, Output = T>,
+    T: PartialEq + PartialOrd + Copy + PrimInt + Zero + BitAnd<Output = T> + From<u8>,
 {
     type Err = &'static str;
 
