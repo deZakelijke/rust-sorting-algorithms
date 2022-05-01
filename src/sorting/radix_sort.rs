@@ -8,7 +8,7 @@ where
 {
     let n = size_of::<T>();
     println!("Size of T: {}", n);
-    radix_msd_sort_recursive(unsorted_numbers, n * 2)
+    radix_msd_sort_recursive(unsorted_numbers, n * 8)
 }
 
 fn radix_msd_sort_recursive<T>(unsorted_numbers: Vec<T>, bit: usize) -> Vec<T>

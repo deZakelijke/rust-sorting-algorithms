@@ -56,8 +56,8 @@ fn quick_sort_ten_items() {
 
 #[test]
 fn radix_msd_sort_ten_items() {
-    let unsorted_numbers: Vec<i64> = vec![8, 9, 1, 7, 2, 5, 3, 10, 4, 6];
-    let sorted_numbers: Vec<i64> = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    let unsorted_numbers: Vec<u8> = vec![8, 9, 1, 7, 2, 5, 3, 10, 4, 6];
+    let sorted_numbers: Vec<u8> = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     assert_eq!(sorted_numbers, radix_sort::radix_msd_sort(unsorted_numbers));
 }
 
